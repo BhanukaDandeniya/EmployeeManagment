@@ -5,8 +5,8 @@ namespace EmployeeManagment.Service
 {
     public interface IEmployeeService
     {
-        Task<IEnumerable<Employee>> GetAllEmployeesAsync();
-        Task<Employee> GetEmployeeByIdAsync(int id);
+        Task<IEnumerable<EmployeeDTO>> GetAllEmployeesAsync();
+        Task<EmployeeDTO> GetEmployeeByIdAsync(int id);
         Task<int> CreateEmployeeAsync(EmployeeDTO employeeDto);
         Task UpdateEmployeeAsync(int id, EmployeeDTO employeeDto);
 

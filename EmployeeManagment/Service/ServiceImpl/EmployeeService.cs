@@ -10,18 +10,36 @@ namespace EmployeeManagment.Service.ServiceImpl
         private readonly IEmployeeRepository _employeeRepository;
         private readonly ILogger<EmployeeService> _logger;
 
-        public EmployeeService(IEmployeeRepository employeeRepository, ILogger<EmployeeService> logger)
+        public EmployeeService(IEmployeeRepository employeeRepository, 
+        ILogger<EmployeeService> logger)
         {
             _employeeRepository = employeeRepository;
             _logger = logger;
         }
 
-        public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
+        private EmployeeDTO MapToDto(Employee employee)
+        {
+            if (employee == null) return null;
+            
+            return new EmployeeDTO
+            {
+                EmpNo = employee.EmpNo,
+                EmpName = employee.EmpName,
+                EmpAddressLine1 = employee.EmpAddressLine1,
+                EmpAddressLine2 = employee.EmpAddressLine2,
+                EmpAddressLine3 = employee.EmpAddressLine3,
+                EmpDateOfJoin = employee.EmpDateOfJoin,
+                EmpStatus = employee.EmpStatus,
+                EmpImage = employee.EmpImage
+            };
+        }
+
+        public async Task<IEnumerable<EmployeeDTO>> GetAllEmployeesAsync()
         {
             try
             {
                 var employees = await _employeeRepository.GetAllEmployeesAsync();
-                return employees ?? Enumerable.Empty<Employee>();
+                return employees?.Select(MapToDto) ?? Enumerable.Empty<EmployeeDTO>();
             }
             catch (MySqlException ex)
             {
@@ -35,7 +53,7 @@ namespace EmployeeManagment.Service.ServiceImpl
             }
         }
 
-        public async Task<Employee> GetEmployeeByIdAsync(int id)
+        public async Task<EmployeeDTO> GetEmployeeByIdAsync(int id)
         {
             try
             {
@@ -44,7 +62,7 @@ namespace EmployeeManagment.Service.ServiceImpl
                 {
                     throw new KeyNotFoundException($"Employee with ID {id} not found");
                 }
-                return employee;
+                return MapToDto(employee);
             }
             catch (MySqlException ex)
             {
@@ -53,7 +71,7 @@ namespace EmployeeManagment.Service.ServiceImpl
             }
             catch (KeyNotFoundException)
             {
-                throw; // Rethrow KeyNotFoundException as is
+                throw;
             }
             catch (Exception ex)
             {
@@ -82,7 +100,7 @@ namespace EmployeeManagment.Service.ServiceImpl
 
                 return await _employeeRepository.CreateEmployeeAsync(employee);
             }
-            catch (MySqlException ex) when (ex.Number == 1062) // Duplicate entry error
+            catch (MySqlException ex) when (ex.Number == 1062) 
             {
                 _logger.LogError(ex, "Duplicate employee number detected: {EmpNo}", employeeDto.EmpNo);
                 throw new InvalidOperationException($"Employee number {employeeDto.EmpNo} already exists", ex);
@@ -127,7 +145,7 @@ namespace EmployeeManagment.Service.ServiceImpl
 
                 await _employeeRepository.UpdateEmployeeAsync(employee);
             }
-            catch (MySqlException ex) when (ex.Number == 1062) // Duplicate entry error
+            catch (MySqlException ex) when (ex.Number == 1062) 
             {
                 _logger.LogError(ex, "Duplicate employee number detected during update: {EmpNo}", employeeDto.EmpNo);
                 throw new InvalidOperationException($"Employee number {employeeDto.EmpNo} already exists", ex);
@@ -189,7 +207,7 @@ namespace EmployeeManagment.Service.ServiceImpl
 
                 if (updates != null)
                 {
-                    await _employeeRepository.PatchEmployeeAsync(id, updates);  // Pass DTO directly
+                    await _employeeRepository.PatchEmployeeAsync(id, updates);  
                 }
             }
             catch (MySqlException ex)

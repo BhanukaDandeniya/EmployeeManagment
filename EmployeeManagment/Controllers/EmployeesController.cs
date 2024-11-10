@@ -18,21 +18,24 @@ namespace EmployeeManagment.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
+        public async Task<ActionResult<IEnumerable<EmployeeDTO>>> GetEmployees()
         {
             var employees = await _employeeService.GetAllEmployeesAsync();
             return Ok(employees);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Employee>> GetEmployee(int id)
+        public async Task<ActionResult<EmployeeDTO>> GetEmployee(int id)
         {
-            var employee = await _employeeService.GetEmployeeByIdAsync(id);
-            if (employee == null)
+            try
+            {
+                var employee = await _employeeService.GetEmployeeByIdAsync(id);
+                return Ok(employee);
+            }
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
-            return Ok(employee);
         }
 
         [HttpPost]
@@ -56,7 +59,9 @@ namespace EmployeeManagment.Controllers
             }
         }
 
-        // PATCH: api/Employee/{id}
+        // PATCH: api/Employee/{id} // in there you should change the request body according to what are the fields you want to update
+
+        //example if you want to update only employee Name only send the employeeName with request body
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchEmployee(int id, [FromBody] EmployeePatchDTO updates)
         {
