@@ -8,7 +8,7 @@ A comprehensive employee management system built with ASP.NET Core Web API using
   - Add new employee
   - Update employee details
   - Delete employee
-  - Search and filter capabilities
+  
 
 - **Data Persistence**
   - Utilizes ADO.NET for direct MySQL database operations
